@@ -198,8 +198,8 @@
 
             <div class="section-title">Hình ảnh:</div>
             <div class="form-row">
-                <div class="form-group"><label>Ảnh 1 (Cận cảnh gốc đến vị trí có số cây )</label><input type="file" id="img1" accept="image/*"><img id="preview1" class="image-preview"></div>
-                <div class="form-group"><label>Ảnh 2 (Tổng quan toàn cây)</label><input type="file" id="img2" accept="image/*"><img id="preview2" class="image-preview"></div>
+                <div class="form-group"><label>Ảnh 1 (Cận cảnh gốc)</label><input type="file" id="img1" accept="image/*"><img id="preview1" class="image-preview"></div>
+                <div class="form-group"><label>Ảnh 2 (Tổng quan)</label><input type="file" id="img2" accept="image/*"><img id="preview2" class="image-preview"></div>
             </div>
         </form>
 
@@ -242,7 +242,6 @@
             loadCloudTrees();
         }
 
-        // Chuyển đổi chuỗi tọa độ chứa dấu phẩy từ Cloud về dạng số để hiển thị lên bản đồ Google Maps
         function parseCloudCoordinate(coordStr) {
             if (!coordStr) return NaN;
             let normalized = coordStr.toString().replace(',', '.');
@@ -263,13 +262,23 @@
                     let validCount = 0;
 
                     result.data.forEach(tree => {
-                        const lng = parseCloudCoordinate(tree.coordX);
-                        const lat = parseCloudCoordinate(tree.coordY);
+                        // Rà soát và đọc linh hoạt cả Tọa độ X, Y viết hoa hoặc viết thường từ bảng tính
+                        const coordXVal = tree.coordX || tree.CoordX || tree.COORDX || '';
+                        const coordYVal = tree.coordY || tree.CoordY || tree.COORDY || '';
+                        
+                        const lng = parseCloudCoordinate(coordXVal);
+                        const lat = parseCloudCoordinate(coordYVal);
 
                         if (!isNaN(lat) && !isNaN(lng)) {
                             const position = { lat: lat, lng: lng };
                             bounds.extend(position);
                             validCount++;
+
+                            // RÀ SOÁT LINH HOẠT TÊN CỘT: Tự động bắt dữ liệu bất kể Google Sheet xuất thuộc tính viết Hoa hay viết Thường
+                            const maSoCayHienThi = tree.masocay || tree.MaSoCay || tree.MASOCAY || tree.masốcây || '-';
+                            const loaiCayHienThi = tree.species || tree.Species || tree.SPECIES || tree.loaicay || tree.LoaiCay || 'Chưa rõ';
+                            const tuyenDuongHienThi = tree.street_park || tree.Street_park || tree.STREET_PARK || tree.tenduong || '-';
+                            const tinhTrangHienThi = tree.nho || tree.Nho || tree.NHO || tree.tinhtrang || 'Bình thường';
 
                             const m = new google.maps.Marker({
                                 position: position,
@@ -282,16 +291,17 @@
                                     strokeColor: 'white',
                                     strokeWeight: 1.5
                                 },
-                                title: `[MS: ${tree.masocay || '-'}] ${tree.species || 'Chưa rõ'}`
+                                title: `[MS: ${maSoCayHienThi}] ${loaiCayHienThi}`
                             });
 
+                            // Kết nối và kết xuất thông tin trực quan lên cửa sổ bản đồ khi click chuột
                             const infoWindow = new google.maps.InfoWindow({
                                 content: `<div style="font-size:13px; color:#333; line-height:1.4; padding:3px; font-family: sans-serif;">
-                                            <b style="color:var(--primary); display:block; margin-bottom:4px;">🌳 CÂY HIỆN TRƯỜNG</b>
-                                            <b>Mã số:</b> ${tree.masocay || '-'}<br>
-                                            <b>Loài:</b> ${tree.species || 'Chưa rõ'}<br>
-                                            <b>Tuyến:</b> ${tree.street_park || '-'}<br>
-                                            <b>Tình trạng:</b> ${tree.nho || 'Bình thường'}
+                                            <b style="color:var(--primary); display:block; margin-bottom:4px;">🌳 CÂY XANH</b>
+                                            <b>Mã số cây:</b> ${maSoCayHienThi}<br>
+                                            <b>Loài cây:</b> ${loaiCayHienThi}<br>
+                                            <b>Tuyến đường:</b> ${tuyenDuongHienThi}<br>
+                                            <b>Tình trạng:</b> ${tinhTrangHienThi}
                                           </div>`
                             });
 
@@ -322,7 +332,6 @@
         }
 
         function updateLocationInputs(latLng) {
-            // Hiển thị tọa độ ra ô nhập liệu với định dạng dấu phẩy (,) thập phân
             document.getElementById('coordY').value = latLng.lat().toFixed(6).replace('.', ',');
             document.getElementById('coordX').value = latLng.lng().toFixed(6).replace('.', ',');
             if (marker) marker.setMap(null);
@@ -405,8 +414,8 @@
 
         async function getFormData() {
             const data = {
-                coordX: document.getElementById('coordX').value, // Đã có dấu phẩy
-                coordY: document.getElementById('coordY').value, // Đã có dấu phẩy
+                coordX: document.getElementById('coordX').value, 
+                coordY: document.getElementById('coordY').value, 
                 company: document.getElementById('company').value,
                 area: document.getElementById('area').value,
                 address: document.getElementById('address').value.trim(),
