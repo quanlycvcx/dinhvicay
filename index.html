@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Công tác định vị cây xanh</title>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuRWIozMKFbaB82wW1NqRvBGcF8_q_fSg&libraries=places"></script>
+    <style>
+        :root { --primary: #2e7d32; --secondary: #1565c0; --accent: #ef6c00; --danger: #c62828; --bg: #f1f3f4; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #333; }
+        #map { height: 38vh; width: 100%; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .container { padding: 14px; position: relative; z-index: 5; }
+        h1 { text-align:center; margin:8px 0; color:var(--primary); font-size: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group { margin-bottom: 12px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        label { display:block; margin-bottom:4px; font-weight:600; color:#444; font-size: 13px; }
+        input, select, textarea {
+            width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 6px; font-size: 14px; background: white; transition: border 0.2s;
+        }
+        input:focus, select:focus { border-color: var(--primary); outline: none; }
+        input[readonly] { background: #f8f9fa; color: #666; }
+        .search-select-container { position: relative; }
+        .search-input { margin-bottom: 4px; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="%23777" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>') no-repeat calc(100% - 12px) center; padding-right: 35px; }
+        
+        button { padding: 12px; font-size: 15px; border: none; border-radius: 6px; cursor: pointer; width: 100%; margin: 5px 0; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s; }
+        button:active { opacity: 0.8; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-sync { background: var(--secondary); color: white; font-size: 16px; padding: 14px; box-shadow: 0 4px 6px rgba(21,101,192,0.2); }
+        .btn-success { background: #43a047; color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-backup { background: var(--accent); color: white; }
+        .image-preview { max-width: 100%; max-height: 120px; object-fit: contain; margin-top: 8px; border-radius: 6px; display: none; border: 1px dashed #ccc; }
+        .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:12px 20px; border-radius:24px; z-index:99999; display:none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); text-align: center; font-size: 14px; width: 90%; max-width: 350px; font-weight: 500; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 10000; color: white; text-align: center; padding: 45vh 20px 0 20px; font-size: 16px; font-weight: bold; backdrop-filter: blur(3px); }
+        
+        .section-title { font-size: 14px; font-weight: bold; color: var(--primary); margin: 15px 0 5px 0; border-left: 4px solid var(--primary); padding-left: 8px; }
+        .grid-technical { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .grid-technical .form-group { margin-bottom: 0; padding: 8px; }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loading">⏳ Đang nén tối ưu ảnh và đẩy dữ liệu lên Cloud...</div>
+    <div id="map"></div>
+
+    <div class="container">
+        <h1>CÔNG TÁC ĐỊNH VỊ CÂY XANH</h1>
+        <button class="btn-primary" onclick="getCurrentLocation()">Định vị tọa độ theo GPS thiết bị</button>
+
+        <form id="treeForm">
+            <div class="section-title">Vị trí & Quản lý</div>
+            <div class="form-row">
+                <div class="form-group"><label>Kinh độ (X)</label><input type="text" id="coordX" readonly placeholder="Chờ ghim..."></div>
+                <div class="form-group"><label>Vĩ độ (Y)</label><input type="text" id="coordY" readonly placeholder="Chờ ghim..."></div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Đơn vị Duy tu</label>
+                    <select id="company">
+                        <option value="">-- Chọn --</option>
+                        <option value="Công ty 1">Công ty TNHH Hoàng Lam</option>
+			<option value="Công ty 2">Công ty TNHH MTV DVCI Quận 2</option>
+                        <option value="Công ty 3">Công ty 3</option>
+			<option value="Công ty 4">Công ty 4</option>
+                        <option value="Công ty 5">Công ty 5</option>
+			<option value="Công ty 6">Công ty 6</option>
+                        <option value="Công ty 7">Công ty 7</option>
+			<option value="Công ty 8">Công ty 8</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Khu vực</label>
+                    <select id="area">
+                        <option value="">-- Chọn --</option>
+                        <option value="Đường phố">Đường phố</option>
+			<option value="Công viên">Công viên</option>
+			<option value="Mảng xanh">Mảng xanh</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group"><label>Địa chỉ bản đồ</label><input type="text" id="address" placeholder="Hệ thống tự nhận diện vị trí ghim"></div>
+            
+            <div class="form-row">
+                <div class="form-group" style="position: relative;">
+                    <label>Phường/Xã</label>
+                    <div class="search-select-container">
+                        <input type="text" id="wardSearch" class="search-input" placeholder="Nhập tên phường..." oninput="filterWards()">
+                        <select id="ward" size="4" style="display:none; position: absolute; z-index: 100; left: 0; width: 100%;">
+                            <option value="Phường 1">Phường 1</option>
+			    <option value="Phường 2">Phường 2</option>
+			    <option value="Phường 3">Phường 3</option>
+			    <option value="Phường 4">Phường 4</option>
+			    <option value="Phường 5">Phường 5</option>
+			    <option value="Phường 6">Phường 6</option>
+			    <option value="Phường 7">Phường 7</option>
+			    <option value="Phường 8">Phường 8</option>
+			    <option value="Phường 9">Phường 9</option>
+			    <option value="Phường 10">Phường 10</option>
+			    <option value="Phường 11">Phường 11</option>
+			    <option value="Phường 12">Phường 12</option>
+			    <option value="Phường 13">Phường 13</option>
+			    <option value="Phường 14">Phường 14</option>
+			    <option value="Phường 15">Phường 15</option>
+			    <option value="Phường 16">Phường 16</option>
+			    <option value="Phường 17">Phường 17</option>
+			    <option value="Phường 18">Phường 18</option>
+			    <option value="Phường 19">Phường 19</option>
+			    <option value="Phường 20">Phường 20</option>
+			    <option value="Phường 21">Phường 21</option>
+			    <option value="Phường 22">Phường 22</option>
+			    <option value="Phường 23">Phường 23</option>
+			    <option value="Phường 24">Phường 24</option>
+			    <option value="Phường 25">Phường 25</option>
+			    <option value="Phường 26">Phường 26</option>
+			    <option value="Phường 27">Phường 27</option>
+			    <option value="Phường 28">Phường 28</option>
+			    <option value="Phường 29">Phường 29</option>
+			    <option value="Phường 30">Phường 30</option>
+			    <option value="Phường 31">Phường 31</option>
+			    <option value="Phường 32">Phường 32</option>
+			    <option value="Phường 33">Phường 33</option>
+			    <option value="Phường 34">Phường 34</option>
+			    <option value="Phường 35">Phường 35</option>
+			    <option value="Phường 36">Phường 36</option>
+			    <option value="Phường 37">Phường 37</option>
+			    <option value="Phường 38">Phường 38</option>
+			    <option value="Phường 39">Phường 39</option>
+			    <option value="Phường 40">Phường 40</option>
+			    <option value="Phường 41">Phường 41</option>
+			    <option value="Phường 42">Phường 42</option>
+			    <option value="Phường 43">Phường 43</option>
+			    <option value="Phường 44">Phường 44</option>
+			    <option value="Phường 45">Phường 45</option>
+			    <option value="Phường 46">Phường 46</option>
+			    <option value="Phường 47">Phường 47</option>		
+			    <option value="Phường 48">Phường 48</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Vị trí lề (theo số nhà)</label>
+                    <select id="side">
+                        <option value="">-- Chọn lề --</option>
+                        <option value="Chẵn">Chẵn</option>
+			<option value="Chẵn kế giữa">Chẵn kế giữa</option>
+                        <option value="Giữa">Giữa</option>
+                        <option value="Lẻ kế giữa">Lẻ kế giữa</option>
+			<option value="Lẻ">Lẻ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>Tên đường / Tên công viên</label><input type="text" id="street_park" placeholder="Ví dụ: Nguyễn Huệ"></div>
+
+            <div class="section-title">Thông tin & Đặc tính cây</div>
+            <div class="form-row">
+                <div class="form-group"><label>Loài cây</label><input type="text" id="species" placeholder="Sao đen, Dầu rái..."></div>
+                <div class="form-group"><label>Mã số cây</label><input type="text" id="masocay" placeholder="Ví dụ: 39"></div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group"><label>Năm trồng</label><input type="number" id="plantYear" placeholder="2020"></div>
+                <div class="form-group"><label>Số lượng cây</label><input type="number" id="treeCount" value="1"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phân loại cây</label>
+                    <select id="treeClass">
+                        <option value="">-- Chọn --</option>
+                        <option value="Mới trồng">Mới trồng</option>
+                        <option value="Loại 1">Loại 1</option>
+                        <option value="Loại 2">Loại 2</option>
+                        <option value="Loại 3">Loại 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Bồn cỏ / Ô giữ nước</label>
+                    <select id="bon">
+                        <option value="">-- Chọn --</option>
+                        <option value="Có bồn">Có bồn</option>
+                        <option value="Không bồn">Không bồn</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section-title">Thông số Kỹ thuật định lượng</div>
+            <div class="grid-technical">
+                <div class="form-group"><label>Hvn (Chiều cao vút ngọn - m)</label><input type="text" id="hvn" placeholder="m"></div>
+                <div class="form-group"><label>C1,3 (Chu vi thân tại 1.3m)</label><input type="text" id="c13" placeholder="m"></div>
+                <div class="form-group"><label>Đường kính tán (m)</label><input type="text" id="kt" placeholder="m"></div>
+                <div class="form-group"><label>Mô tả tình trạng:</label><input type="text" id="nho" placeholder="Sinh trưởng bình thường, nghiêng..."></div>
+            </div>
+
+            <input type="hidden" id="mt" value="">
+            <input type="hidden" id="l1" value=""><input type="hidden" id="l2" value=""><input type="hidden" id="l3" value="">
+
+            <div class="section-title">Hình ảnh:</div>
+            <div class="form-row">
+                <div class="form-group"><label>Ảnh 1 (Cận cảnh gốc đến vị trí có số cây )</label><input type="file" id="img1" accept="image/*"><img id="preview1" class="image-preview"></div>
+                <div class="form-group"><label>Ảnh 2 (Tổng quan toàn cây)</label><input type="file" id="img2" accept="image/*"><img id="preview2" class="image-preview"></div>
+            </div>
+        </form>
+
+        <button class="btn-sync" onclick="saveAndSyncToSheets()">GỬI TRỰC TIẾP LÊN CLOUD</button>
+        <button class="btn-success" onclick="saveRecordLocal()">Lưu dự phòng vào bộ nhớ máy (Offline)</button>
+        
+        <div class="form-row">
+            <button class="btn-backup" onclick="exportCSV()">Xuất file CSV máy</button>
+            <button class="btn-danger" onclick="clearAllData()">Xóa sạch bộ nhớ máy</button>
+        </div>
+
+        <div style="margin-top:20px; background:#fff; padding:12px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.05)">
+            <h3 style="font-size:14px; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:4px; color:#555;">
+                Danh sách bản ghi đang lưu tạm offline (<span id="recordCount" style="color:var(--accent); font-weight:bold;">0</span>)
+            </h3>
+            <div id="records" style="max-height:180px; overflow-y:auto; font-size:12px;"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let map, marker, geocoder;
+        let records = JSON.parse(localStorage.getItem('treeRecords')) || [];
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzaHB1ErwxvUN_hi2CtWm-AKcetuJJpruyRiAQAZ9xKEbWdS7hxM8td4_U10nagpvj_7w/exec'; 
+
+        function initMap() {
+            geocoder = new google.maps.Geocoder();
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 10.8231, lng: 106.6297 }, zoom: 16, mapTypeId: 'hybrid', 
+                streetViewControl: false, mapTypeControlOptions: { position: google.maps.ControlPosition.TOP_RIGHT }
+            });
+            map.addListener('click', e => updateLocationInputs(e.latLng));
+            document.getElementById('ward').addEventListener('change', function() {
+                document.getElementById('wardSearch').value = this.value;
+                this.style.display = 'none';
+            });
+        }
+
+        function getCurrentLocation() {
+            if (!navigator.geolocation) return showToast("Thiết bị không hỗ trợ định vị GPS", "error");
+            navigator.geolocation.getCurrentPosition(pos => {
+                const latLng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+                map.setCenter(latLng); map.setZoom(19);
+                updateLocationInputs(latLng);
+                showToast("Đã định vị thành công vị trí hiện tại!", "success");
+            }, () => showToast("Sự cố định vị. Hãy chắc chắn đã bật vị trí cấp cao (GPS)!", "error"), { enableHighAccuracy: true, timeout: 7000 });
+        }
+
+        function updateLocationInputs(latLng) {
+            document.getElementById('coordY').value = latLng.lat().toFixed(6);
+            document.getElementById('coordX').value = latLng.lng().toFixed(6);
+            if (marker) marker.setMap(null);
+            marker = new google.maps.Marker({ position: latLng, map: map, animation: google.maps.Animation.DROP });
+            map.panTo(latLng);
+
+            geocoder.geocode({ location: latLng }, (results, status) => {
+                if (status === "OK" && results[0]) {
+                    const fullAddress = results[0].formatted_address;
+                    document.getElementById('address').value = fullAddress;
+
+                    let route = "", streetNumber = "";
+                    for (let c of results[0].address_components) {
+                        if (c.types.includes("route")) route = c.long_name;
+                        if (c.types.includes("street_number")) streetNumber = c.long_name;
+                    }
+                    document.getElementById('street_park').value = route || fullAddress.split(',')[0].replace(/[0-9]/g, '').trim();
+
+                    if (streetNumber) {
+                        let numMatch = streetNumber.match(/\d+/);
+                        if (numMatch) {
+                            document.getElementById('side').value = (parseInt(numMatch[0]) % 2 === 0) ? "Chẵn" : "Lẻ";
+                        }
+                    }
+                }
+            });
+        }
+
+        function filterWards() {
+            const input = document.getElementById('wardSearch').value.toUpperCase();
+            const select = document.getElementById('ward');
+            let hasResults = false;
+            for (let opt of select.options) {
+                if (opt.textContent.toUpperCase().indexOf(input) > -1) { opt.style.display = ""; hasResults = true; }
+                else opt.style.display = "none";
+            }
+            select.style.display = (hasResults && input.length > 0) ? "block" : "none";
+        }
+
+        function setupImagePreview(inputId, previewId) {
+            document.getElementById(inputId).addEventListener('change', e => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = ev => {  
+                        document.getElementById(previewId).src = ev.target.result; 
+                        document.getElementById(previewId).style.display = 'block'; 
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const MAX_WIDTH = 900; 
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.65); 
+                        resolve(dataUrl);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function getFormData() {
+            const data = {
+                coordX: document.getElementById('coordX').value,
+                coordY: document.getElementById('coordY').value,
+                company: document.getElementById('company').value,
+                area: document.getElementById('area').value,
+                address: document.getElementById('address').value.trim(),
+                ward: document.getElementById('wardSearch').value.trim(),
+                street_park: document.getElementById('street_park').value.trim(),
+                side: document.getElementById('side').value,
+                species: document.getElementById('species').value.trim(),
+                masocay: document.getElementById('masocay').value.trim(),
+                treeCount: document.getElementById('treeCount').value,
+                plantYear: document.getElementById('plantYear').value.trim(),
+                treeClass: document.getElementById('treeClass').value,
+                bon: document.getElementById('bon').value,
+                hvn: document.getElementById('hvn').value.trim(),
+                c13: document.getElementById('c13').value.trim(),
+                kt: document.getElementById('kt').value.trim(),
+                nho: document.getElementById('nho').value.trim(),
+                mt: document.getElementById('mt').value,
+                l1: document.getElementById('l1').value,
+                l2: document.getElementById('l2').value,
+                l3: document.getElementById('l3').value
+            };
+            const img1 = document.getElementById('img1').files[0];
+            const img2 = document.getElementById('img2').files[0];
+            if (img1) data.img1 = await fileToBase64(img1);
+            if (img2) data.img2 = await fileToBase64(img2);
+            return data;
+        }
+
+        async function saveAndSyncToSheets() {
+            const coordCheck = document.getElementById('coordX').value;
+            if (!coordCheck) return showToast("⚠️ Lỗi: Vui lòng ghim vị trí hoặc bấm định vị trước!", "error");
+
+            document.getElementById('loading').style.display = 'block';
+            try {
+                const data = await getFormData();
+                const response = await fetch(WEB_APP_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(data)
+                });
+                document.getElementById('loading').style.display = 'none';
+
+                if (!response.ok) throw new Error("Mạng không phản hồi");
+                const resData = await response.json();
+                
+                if(resData.status === "success") {
+                    showToast("Đồng bộ thành công! Đã cập nhật Cloud.", "success");
+                    resetForm();
+                } else {
+                    showToast("Hệ thống Cloud bận, đã chuyển dữ liệu lưu tạm máy (Offline)", "error");
+                    saveRecordLocal(data);
+                }
+            } catch (err) {
+                document.getElementById('loading').style.display = 'none';
+                showToast("Mất kết nối! Dữ liệu được chuyển lưu tạm Offline", "error");
+                const currentData = await getFormData();
+                saveRecordLocal(currentData);
+            }
+        }
+
+        function saveRecordLocal(directData = null) {
+            async function proceedSave(data) {
+                if (!data.coordX || !data.coordY) return showToast("Không tìm thấy tọa độ dữ liệu!", "error");
+                data.timestamp = new Date().toISOString();
+                records.push(data);
+                localStorage.setItem('treeRecords', JSON.stringify(records));
+                updateRecordList();
+                showToast("Đã lưu dữ liệu dự phòng vào bộ nhớ máy cục bộ!", "success");
+                resetForm();
+            }
+            if(directData) { proceedSave(directData); } else { getFormData().then(data => proceedSave(data)); }
+        }
+
+        function resetForm() {
+            document.getElementById('treeForm').reset();
+            document.getElementById('preview1').style.display = 'none';
+            document.getElementById('preview2').style.display = 'none';
+            document.getElementById('wardSearch').value = '';
+        }
+
+        function updateRecordList() {
+            document.getElementById('recordCount').textContent = records.length;
+            document.getElementById('records').innerHTML = records.map((r, index) => `
+                <div style="background:#fff; padding:8px; margin:6px 0; border-radius:6px; border-left: 4px solid var(--secondary); display:flex; justify-content:space-between; align-items:center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <div>
+                        <strong>${index + 1}. [MS: ${r.masocay || '-'}] ${r.species || 'Chưa rõ loài'}</strong> - ${r.street_park || 'Tuyến phố'}
+                        <div style="font-size:11px; color:#777; margin-top:2px;">Tọa độ: ${r.coordX}, ${r.coordY}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function exportCSV() {
+            if (records.length === 0) return showToast("Bộ nhớ tạm không có dữ liệu nào!", "error");
+            let headers = ["coordX","coordY","company","area","address","ward","street_park","side","species","masocay","treeCount","plantYear","treeClass","bon","hvn","c13","kt","nho","timestamp"];
+            let csv = '\uFEFF' + headers.join(',') + '\n';
+            records.forEach(r => { csv += headers.map(h => `"${(r[h]||'').toString().replace(/"/g, '""')}"`).join(',') + '\n'; });
+            const link = document.createElement('a'); 
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `Backup_CayXanh_${new Date().toISOString().slice(0,10)}.csv`; 
+            link.click();
+            showToast("Đã xuất file CSV dự phòng thành công!", "success");
+        }
+
+        function clearAllData() { 
+            if (confirm("Bạn chắc chắn muốn xóa toàn bộ bản ghi đang lưu tạm trên máy này?")) { 
+                records = []; localStorage.removeItem('treeRecords'); updateRecordList(); 
+                showToast("Đã xóa sạch bộ nhớ tạm của thiết bị.", "success");
+            } 
+        }
+        
+        function showToast(msg, type = "success") { 
+            const t = document.getElementById('toast'); t.textContent = msg; 
+            t.style.background = type === "error" ? "var(--danger)" : "var(--primary)"; 
+            t.style.display = "block"; setTimeout(() => t.style.display = "none", 3500); 
+        }
+
+        window.onload = () => { initMap(); updateRecordList(); setupImagePreview('img1', 'preview1'); setupImagePreview('img2', 'preview2'); };
+    </script>
+</body>
+</html>
