@@ -45,7 +45,7 @@
 
     <div class="container">
         <h1>CÔNG TÁC ĐỊNH VỊ CÂY XANH</h1>
-        <button class="btn-primary" onclick="getCurrentLocation()">CLICK để xác định vị trí của bạn!</button>
+        <button class="btn-primary" onclick="getCurrentLocation()">Định vị tọa độ theo GPS thiết bị</button>
 
         <form id="treeForm">
             <div class="section-title">Vị trí & Quản lý</div>
@@ -242,12 +242,18 @@
             loadCloudTrees();
         }
 
+        // Chuyển đổi chuỗi tọa độ chứa dấu phẩy từ Cloud về dạng số để hiển thị lên bản đồ Google Maps
+        function parseCloudCoordinate(coordStr) {
+            if (!coordStr) return NaN;
+            let normalized = coordStr.toString().replace(',', '.');
+            return parseFloat(normalized);
+        }
+
         async function loadCloudTrees() {
             existingMarkers.forEach(m => m.setMap(null));
             existingMarkers = [];
 
             try {
-                // Thêm cấu hình redirect: 'follow' để giải quyết lỗi chuyển hướng của Google Web App
                 const response = await fetch(WEB_APP_URL, { method: 'GET', redirect: 'follow' });
                 if (!response.ok) return;
                 const result = await response.json();
@@ -257,15 +263,14 @@
                     let validCount = 0;
 
                     result.data.forEach(tree => {
-                        const lng = parseFloat(tree.coordX);
-                        const lat = parseFloat(tree.coordY);
+                        const lng = parseCloudCoordinate(tree.coordX);
+                        const lat = parseCloudCoordinate(tree.coordY);
 
                         if (!isNaN(lat) && !isNaN(lng)) {
                             const position = { lat: lat, lng: lng };
                             bounds.extend(position);
                             validCount++;
 
-                            // Vẽ marker dạng chấm tròn màu xanh lục viền trắng rõ nét trên nền ảnh vệ tinh
                             const m = new google.maps.Marker({
                                 position: position,
                                 map: map,
@@ -317,8 +322,9 @@
         }
 
         function updateLocationInputs(latLng) {
-            document.getElementById('coordY').value = latLng.lat().toFixed(6);
-            document.getElementById('coordX').value = latLng.lng().toFixed(6);
+            // Hiển thị tọa độ ra ô nhập liệu với định dạng dấu phẩy (,) thập phân
+            document.getElementById('coordY').value = latLng.lat().toFixed(6).replace('.', ',');
+            document.getElementById('coordX').value = latLng.lng().toFixed(6).replace('.', ',');
             if (marker) marker.setMap(null);
             marker = new google.maps.Marker({ position: latLng, map: map, animation: google.maps.Animation.DROP });
             map.panTo(latLng);
@@ -399,8 +405,8 @@
 
         async function getFormData() {
             const data = {
-                coordX: document.getElementById('coordX').value,
-                coordY: document.getElementById('coordY').value,
+                coordX: document.getElementById('coordX').value, // Đã có dấu phẩy
+                coordY: document.getElementById('coordY').value, // Đã có dấu phẩy
                 company: document.getElementById('company').value,
                 area: document.getElementById('area').value,
                 address: document.getElementById('address').value.trim(),
