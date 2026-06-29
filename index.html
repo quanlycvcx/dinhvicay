@@ -40,7 +40,7 @@
     </style>
 </head>
 <body>
-    <div class="loading-overlay" id="loading">⏳ Đang nén tối ưu ảnh và đẩy dữ liệu lên Cloud...</div>
+    <div class="loading-overlay" id="loading">⏳ Đang xử lý và đồng bộ dữ liệu...</div>
     <div id="map"></div>
 
     <div class="container">
@@ -59,14 +59,14 @@
                     <label>Đơn vị Duy tu</label>
                     <select id="company">
                         <option value="">-- Chọn --</option>
-                        <option value="Công ty 1">Công ty TNHH Hoàng Lam</option>
-			<option value="Công ty 2">Công ty TNHH MTV DVCI Quận 2</option>
+                        <option value="Công ty TNHH Hoàng Lam">Công ty TNHH Hoàng Lam</option>
+                        <option value="Công ty TNHH MTV DVCI Quận 2">Công ty TNHH MTV DVCI Quận 2</option>
                         <option value="Công ty 3">Công ty 3</option>
-			<option value="Công ty 4">Công ty 4</option>
+                        <option value="Công ty 4">Công ty 4</option>
                         <option value="Công ty 5">Công ty 5</option>
-			<option value="Công ty 6">Công ty 6</option>
+                        <option value="Công ty 6">Công ty 6</option>
                         <option value="Công ty 7">Công ty 7</option>
-			<option value="Công ty 8">Công ty 8</option>
+                        <option value="Công ty 8">Công ty 8</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -74,8 +74,8 @@
                     <select id="area">
                         <option value="">-- Chọn --</option>
                         <option value="Đường phố">Đường phố</option>
-			<option value="Công viên">Công viên</option>
-			<option value="Mảng xanh">Mảng xanh</option>
+                        <option value="Công viên">Công viên</option>
+                        <option value="Mảng xanh">Mảng xanh</option>
                     </select>
                 </div>
             </div>
@@ -89,53 +89,53 @@
                         <input type="text" id="wardSearch" class="search-input" placeholder="Nhập tên phường..." oninput="filterWards()">
                         <select id="ward" size="4" style="display:none; position: absolute; z-index: 100; left: 0; width: 100%;">
                             <option value="Phường 1">Phường 1</option>
-			    <option value="Phường 2">Phường 2</option>
-			    <option value="Phường 3">Phường 3</option>
-			    <option value="Phường 4">Phường 4</option>
-			    <option value="Phường 5">Phường 5</option>
-			    <option value="Phường 6">Phường 6</option>
-			    <option value="Phường 7">Phường 7</option>
-			    <option value="Phường 8">Phường 8</option>
-			    <option value="Phường 9">Phường 9</option>
-			    <option value="Phường 10">Phường 10</option>
-			    <option value="Phường 11">Phường 11</option>
-			    <option value="Phường 12">Phường 12</option>
-			    <option value="Phường 13">Phường 13</option>
-			    <option value="Phường 14">Phường 14</option>
-			    <option value="Phường 15">Phường 15</option>
-			    <option value="Phường 16">Phường 16</option>
-			    <option value="Phường 17">Phường 17</option>
-			    <option value="Phường 18">Phường 18</option>
-			    <option value="Phường 19">Phường 19</option>
-			    <option value="Phường 20">Phường 20</option>
-			    <option value="Phường 21">Phường 21</option>
-			    <option value="Phường 22">Phường 22</option>
-			    <option value="Phường 23">Phường 23</option>
-			    <option value="Phường 24">Phường 24</option>
-			    <option value="Phường 25">Phường 25</option>
-			    <option value="Phường 26">Phường 26</option>
-			    <option value="Phường 27">Phường 27</option>
-			    <option value="Phường 28">Phường 28</option>
-			    <option value="Phường 29">Phường 29</option>
-			    <option value="Phường 30">Phường 30</option>
-			    <option value="Phường 31">Phường 31</option>
-			    <option value="Phường 32">Phường 32</option>
-			    <option value="Phường 33">Phường 33</option>
-			    <option value="Phường 34">Phường 34</option>
-			    <option value="Phường 35">Phường 35</option>
-			    <option value="Phường 36">Phường 36</option>
-			    <option value="Phường 37">Phường 37</option>
-			    <option value="Phường 38">Phường 38</option>
-			    <option value="Phường 39">Phường 39</option>
-			    <option value="Phường 40">Phường 40</option>
-			    <option value="Phường 41">Phường 41</option>
-			    <option value="Phường 42">Phường 42</option>
-			    <option value="Phường 43">Phường 43</option>
-			    <option value="Phường 44">Phường 44</option>
-			    <option value="Phường 45">Phường 45</option>
-			    <option value="Phường 46">Phường 46</option>
-			    <option value="Phường 47">Phường 47</option>		
-			    <option value="Phường 48">Phường 48</option>
+                            <option value="Phường 2">Phường 2</option>
+                            <option value="Phường 3">Phường 3</option>
+                            <option value="Phường 4">Phường 4</option>
+                            <option value="Phường 5">Phường 5</option>
+                            <option value="Phường 6">Phường 6</option>
+                            <option value="Phường 7">Phường 7</option>
+                            <option value="Phường 8">Phường 8</option>
+                            <option value="Phường 9">Phường 9</option>
+                            <option value="Phường 10">Phường 10</option>
+                            <option value="Phường 11">Phường 11</option>
+                            <option value="Phường 12">Phường 12</option>
+                            <option value="Phường 13">Phường 13</option>
+                            <option value="Phường 14">Phường 14</option>
+                            <option value="Phường 15">Phường 15</option>
+                            <option value="Phường 16">Phường 16</option>
+                            <option value="Phường 17">Phường 17</option>
+                            <option value="Phường 18">Phường 18</option>
+                            <option value="Phường 19">Phường 19</option>
+                            <option value="Phường 20">Phường 20</option>
+                            <option value="Phường 21">Phường 21</option>
+                            <option value="Phường 22">Phường 22</option>
+                            <option value="Phường 23">Phường 23</option>
+                            <option value="Phường 24">Phường 24</option>
+                            <option value="Phường 25">Phường 25</option>
+                            <option value="Phường 26">Phường 26</option>
+                            <option value="Phường 27">Phường 27</option>
+                            <option value="Phường 28">Phường 28</option>
+                            <option value="Phường 29">Phường 29</option>
+                            <option value="Phường 30">Phường 30</option>
+                            <option value="Phường 31">Phường 31</option>
+                            <option value="Phường 32">Phường 32</option>
+                            <option value="Phường 33">Phường 33</option>
+                            <option value="Phường 34">Phường 34</option>
+                            <option value="Phường 35">Phường 35</option>
+                            <option value="Phường 36">Phường 36</option>
+                            <option value="Phường 37">Phường 37</option>
+                            <option value="Phường 38">Phường 38</option>
+                            <option value="Phường 39">Phường 39</option>
+                            <option value="Phường 40">Phường 40</option>
+                            <option value="Phường 41">Phường 41</option>
+                            <option value="Phường 42">Phường 42</option>
+                            <option value="Phường 43">Phường 43</option>
+                            <option value="Phường 44">Phường 44</option>
+                            <option value="Phường 45">Phường 45</option>
+                            <option value="Phường 46">Phường 46</option>
+                            <option value="Phường 47">Phường 47</option>        
+                            <option value="Phường 48">Phường 48</option>
                         </select>
                     </div>
                 </div>
@@ -144,10 +144,10 @@
                     <select id="side">
                         <option value="">-- Chọn lề --</option>
                         <option value="Chẵn">Chẵn</option>
-			<option value="Chẵn kế giữa">Chẵn kế giữa</option>
+                        <option value="Chẵn kế giữa">Chẵn kế giữa</option>
                         <option value="Giữa">Giữa</option>
                         <option value="Lẻ kế giữa">Lẻ kế giữa</option>
-			<option value="Lẻ">Lẻ</option>
+                        <option value="Lẻ">Lẻ</option>
                     </select>
                 </div>
             </div>
@@ -176,7 +176,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Bồn cỏ / Ô giữ nước</label>
+                    <label>Bồn cỏ</label>
                     <select id="bon">
                         <option value="">-- Chọn --</option>
                         <option value="Có bồn">Có bồn</option>
@@ -188,7 +188,7 @@
             <div class="section-title">Thông số Kỹ thuật định lượng</div>
             <div class="grid-technical">
                 <div class="form-group"><label>Hvn (Chiều cao vút ngọn - m)</label><input type="text" id="hvn" placeholder="m"></div>
-                <div class="form-group"><label>C1,3 (Chu vi thân tại 1.3m)</label><input type="text" id="c13" placeholder="m"></div>
+                <div class="form-group"><label>C1,3 (Chu vi thân tại 1.3m)</label><input type="text" id="c13" placeholder="cm"></div>
                 <div class="form-group"><label>Đường kính tán (m)</label><input type="text" id="kt" placeholder="m"></div>
                 <div class="form-group"><label>Mô tả tình trạng:</label><input type="text" id="nho" placeholder="Sinh trưởng bình thường, nghiêng..."></div>
             </div>
@@ -224,7 +224,8 @@
     <script>
         let map, marker, geocoder;
         let records = JSON.parse(localStorage.getItem('treeRecords')) || [];
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzaHB1ErwxvUN_hi2CtWm-AKcetuJJpruyRiAQAZ9xKEbWdS7hxM8td4_U10nagpvj_7w/exec'; 
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyIarwHrEIqU0Ih308ZRgkfXJi-LvBUcpqe8Ao33IA7L712tIHyltskoBHgAq_aMlijjQ/exec'; 
+        let existingMarkers = [];
 
         function initMap() {
             geocoder = new google.maps.Geocoder();
@@ -237,6 +238,72 @@
                 document.getElementById('wardSearch').value = this.value;
                 this.style.display = 'none';
             });
+
+            loadCloudTrees();
+        }
+
+        async function loadCloudTrees() {
+            existingMarkers.forEach(m => m.setMap(null));
+            existingMarkers = [];
+
+            try {
+                // Thêm cấu hình redirect: 'follow' để giải quyết lỗi chuyển hướng của Google Web App
+                const response = await fetch(WEB_APP_URL, { method: 'GET', redirect: 'follow' });
+                if (!response.ok) return;
+                const result = await response.json();
+                
+                if (result.status === "success" && result.data && result.data.length > 0) {
+                    let bounds = new google.maps.LatLngBounds();
+                    let validCount = 0;
+
+                    result.data.forEach(tree => {
+                        const lng = parseFloat(tree.coordX);
+                        const lat = parseFloat(tree.coordY);
+
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            const position = { lat: lat, lng: lng };
+                            bounds.extend(position);
+                            validCount++;
+
+                            // Vẽ marker dạng chấm tròn màu xanh lục viền trắng rõ nét trên nền ảnh vệ tinh
+                            const m = new google.maps.Marker({
+                                position: position,
+                                map: map,
+                                icon: {
+                                    path: google.maps.SymbolPath.CIRCLE,
+                                    fillColor: '#43a047',
+                                    fillOpacity: 0.9,
+                                    scale: 6,
+                                    strokeColor: 'white',
+                                    strokeWeight: 1.5
+                                },
+                                title: `[MS: ${tree.masocay || '-'}] ${tree.species || 'Chưa rõ'}`
+                            });
+
+                            const infoWindow = new google.maps.InfoWindow({
+                                content: `<div style="font-size:13px; color:#333; line-height:1.4; padding:3px; font-family: sans-serif;">
+                                            <b style="color:var(--primary); display:block; margin-bottom:4px;">🌳 CÂY HIỆN TRƯỜNG</b>
+                                            <b>Mã số:</b> ${tree.masocay || '-'}<br>
+                                            <b>Loài:</b> ${tree.species || 'Chưa rõ'}<br>
+                                            <b>Tuyến:</b> ${tree.street_park || '-'}<br>
+                                            <b>Tình trạng:</b> ${tree.nho || 'Bình thường'}
+                                          </div>`
+                            });
+
+                            m.addListener('click', () => infoWindow.open(map, m));
+                            existingMarkers.push(m);
+                        }
+                    });
+
+                    if (validCount > 0) {
+                        map.fitBounds(bounds);
+                    }
+                    showToast(`Đã hiển thị nền ${validCount} cây từ Cloud lên bản đồ.`, "success");
+                }
+            } catch (err) {
+                console.error("Lỗi đồng bộ cây nền: ", err);
+                showToast("Không thể kết nối dữ liệu nền cây xanh.", "error");
+            }
         }
 
         function getCurrentLocation() {
@@ -382,6 +449,7 @@
                 if(resData.status === "success") {
                     showToast("Đồng bộ thành công! Đã cập nhật Cloud.", "success");
                     resetForm();
+                    setTimeout(loadCloudTrees, 1200);
                 } else {
                     showToast("Hệ thống Cloud bận, đã chuyển dữ liệu lưu tạm máy (Offline)", "error");
                     saveRecordLocal(data);
