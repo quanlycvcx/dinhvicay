@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Công tác định vị cây xanh</title>
+    <title>Công tác cây xanh</title>
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuRWIozMKFbaB82wW1NqRvBGcF8_q_fSg&libraries=places"></script>
     <style>
         :root { --primary: #2e7d32; --secondary: #1565c0; --accent: #ef6c00; --danger: #c62828; --bg: #f1f3f4; }
@@ -44,8 +44,8 @@
     <div id="map"></div>
 
     <div class="container">
-        <h1>CÔNG TÁC ĐỊNH VỊ CÂY XANH</h1>
-        <button class="btn-primary" onclick="getCurrentLocation()">Định vị tọa độ theo GPS thiết bị</button>
+        <h1>CÔNG TÁC CÂY XANH</h1>
+        <button class="btn-primary" onclick="getCurrentLocation()">Vị trí của bạn</button>
 
         <form id="treeForm">
             <div class="section-title">Vị trí & Quản lý</div>
@@ -190,7 +190,7 @@
                 <div class="form-group"><label>Hvn (Chiều cao vút ngọn - m)</label><input type="text" id="hvn" placeholder="m"></div>
                 <div class="form-group"><label>C1,3 (Chu vi thân tại 1.3m)</label><input type="text" id="c13" placeholder="cm"></div>
                 <div class="form-group"><label>Đường kính tán (m)</label><input type="text" id="kt" placeholder="m"></div>
-                <div class="form-group"><label>Mô tả tình trạng:</label><input type="text" id="nho" placeholder="Sinh trưởng bình thường, nghiêng..."></div>
+                <div class="form-group"><label>Mô tả tình trạng:</label><input type="text" id="nho" placeholder="Cành gãy; Cây gãy, ngã ngang thân; Cây nghiêng "></div>
             </div>
 
             <input type="hidden" id="mt" value="">
@@ -198,7 +198,7 @@
 
             <div class="section-title">Hình ảnh:</div>
             <div class="form-row">
-                <div class="form-group"><label>Ảnh 1 (Cận cảnh gốc)</label><input type="file" id="img1" accept="image/*"><img id="preview1" class="image-preview"></div>
+                <div class="form-group"><label>Ảnh 1 (Cận cảnh)</label><input type="file" id="img1" accept="image/*"><img id="preview1" class="image-preview"></div>
                 <div class="form-group"><label>Ảnh 2 (Tổng quan)</label><input type="file" id="img2" accept="image/*"><img id="preview2" class="image-preview"></div>
             </div>
         </form>
