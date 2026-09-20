@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Công tác cây xanh</title>
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuRWIozMKFbaB82wW1NqRvBGcF8_q_fSg&libraries=places"></script>
+    <title>Thu Thập Cây Xanh</title>
+    <!-- Thư viện Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --primary: #2e7d32; --secondary: #1565c0; --accent: #ef6c00; --danger: #c62828; --bg: #f1f3f4; }
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -21,7 +22,7 @@
         input:focus, select:focus { border-color: var(--primary); outline: none; }
         input[readonly] { background: #f8f9fa; color: #666; }
         .search-select-container { position: relative; }
-        .search-input { margin-bottom: 4px; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="%23777" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>') no-repeat calc(100% - 12px) center; padding-right: 35px; }
+        .search-input { margin-bottom: 4px; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="%23777" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0 z"/></svg>') no-repeat calc(100% - 12px) center; padding-right: 35px; }
         
         button { padding: 12px; font-size: 15px; border: none; border-radius: 6px; cursor: pointer; width: 100%; margin: 5px 0; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s; }
         button:active { opacity: 0.8; }
@@ -38,17 +39,19 @@
         .grid-technical { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .grid-technical .form-group { margin-bottom: 0; padding: 8px; }
     </style>
+    <!-- Thư viện Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <div class="loading-overlay" id="loading">⏳ Đang xử lý và đồng bộ dữ liệu...</div>
+    <div class="loading-overlay" id="loading">⏳ Đang nén tối ưu ảnh và đẩy dữ liệu lên Cloud...</div>
     <div id="map"></div>
 
     <div class="container">
-        <h1>CÔNG TÁC CÂY XANH</h1>
-        <button class="btn-primary" onclick="getCurrentLocation()">Vị trí của bạn</button>
+        <h1>📍 Thu Thập Số Liệu Cây Xanh</h1>
+        <button class="btn-primary" onclick="getCurrentLocation()">🎯 Định vị tọa độ thực tế (GPS)</button>
 
         <form id="treeForm">
-            <div class="section-title">Vị trí & Quản lý:</div>
+            <div class="section-title">Vị trí & Quản lý</div>
             <div class="form-row">
                 <div class="form-group"><label>Kinh độ (X)</label><input type="text" id="coordX" readonly placeholder="Chờ ghim..."></div>
                 <div class="form-group"><label>Vĩ độ (Y)</label><input type="text" id="coordY" readonly placeholder="Chờ ghim..."></div>
@@ -56,53 +59,47 @@
             
             <div class="form-row">
                 <div class="form-group">
-                    <label>Đơn vị Duy tu</label>
+                    <label>Đơn vị quản lý</label>
                     <select id="company">
                         <option value="">-- Chọn --</option>
-                        <option value="Xí nghiệp công trình công cộng phường Dĩ An">Xí nghiệp công trình công cộng phường Dĩ An</option>
-                        <option value="Công ty X">Công ty X</option>
+                        <option value="Công ty 1">Công ty 1</option><option value="Công ty 2">Công ty 2</option>
+                        <option value="Công ty 3">Công ty 3</option><option value="Công ty 4">Công ty 4</option>
+                        <option value="Công ty 5">Công ty 5</option><option value="Công ty 6">Công ty 6</option>
+                        <option value="Công ty 7">Công ty 7</option><option value="Công ty 8">Công ty 8</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Khu vực</label>
                     <select id="area">
                         <option value="">-- Chọn --</option>
-                        <option value="Đường phố">Đường phố</option>
-                        <option value="Công viên">Công viên</option>
-                        <option value="Mảng xanh">Mảng xanh</option>
+                        <option value="Đường phố">Đường phố</option><option value="Công viên">Công viên</option><option value="Mảng xanh">Mảng xanh</option>
                     </select>
                 </div>
             </div>
 
-            <div class="form-group"><label>Địa chỉ bản đồ</label><input type="text" id="address" placeholder="Hệ thống tự nhận diện vị trí ghim"></div>
+            <div class="form-group"><label>Địa chỉ bản đồ (Tự động tra cứu)</label><input type="text" id="address" placeholder="Hệ thống tự nhận diện vị trí ghim"></div>
             
             <div class="form-row">
                 <div class="form-group" style="position: relative;">
-                    <label>Phường/Xã</label>
+                    <label>Phường/Xã (Tìm nhanh)</label>
                     <div class="search-select-container">
                         <input type="text" id="wardSearch" class="search-input" placeholder="Nhập tên phường..." oninput="filterWards()">
                         <select id="ward" size="4" style="display:none; position: absolute; z-index: 100; left: 0; width: 100%;">
-                            <option value="Phường Đông Hòa">Phường Đông Hòa</option>
-                            <option value="Phường Dĩ An">Phường Dĩ An</option>
-                            <option value="Phường Tân Đông Hiệp">Phường Tân Đông Hiệp</option>
+                            <option value="Phường 1">Phường 1</option><option value="Phường 2">Phường 2</option><option value="Phường 3">Phường 3</option><option value="Phường 4">Phường 4</option><option value="Phường 5">Phường 5</option><option value="Phường 6">Phường 6</option><option value="Phường 7">Phường 7</option><option value="Phường 8">Phường 8</option><option value="Phường 9">Phường 9</option><option value="Phường 10">Phường 10</option><option value="Phường 11">Phường 11</option><option value="Phường 12">Phường 12</option><option value="Phường 13">Phường 13</option><option value="Phường 14">Phường 14</option><option value="Phường 15">Phường 15</option><option value="Phường 16">Phường 16</option><option value="Phường 17">Phường 17</option><option value="Phường 18">Phường 18</option><option value="Phường 19">Phường 19</option><option value="Phường 20">Phường 20</option><option value="Phường 21">Phường 21</option><option value="Phường 22">Phường 22</option><option value="Phường 23">Phường 23</option><option value="Phường 24">Phường 24</option><option value="Phường 25">Phường 25</option><option value="Phường 26">Phường 26</option><option value="Phường 27">Phường 27</option><option value="Phường 28">Phường 28</option><option value="Phường 29">Phường 29</option><option value="Phường 30">Phường 30</option><option value="Phường 31">Phường 31</option><option value="Phường 32">Phường 32</option><option value="Phường 33">Phường 33</option><option value="Phường 34">Phường 34</option><option value="Phường 35">Phường 35</option><option value="Phường 36">Phường 36</option><option value="Phường 37">Phường 37</option><option value="Phường 38">Phường 38</option><option value="Phường 39">Phường 39</option><option value="Phường 40">Phường 40</option><option value="Phường 41">Phường 41</option><option value="Phường 42">Phường 42</option><option value="Phường 43">Phường 43</option><option value="Phường 44">Phường 44</option><option value="Phường 45">Phường 45</option><option value="Phường 46">Phường 46</option><option value="Phường 47">Phường 47</option><option value="Phường 48">Phường 48</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Vị trí lề (theo số nhà)</label>
+                    <label>Vị trí lề</label>
                     <select id="side">
                         <option value="">-- Chọn lề --</option>
-                        <option value="Chẵn">Chẵn</option>
-                        <option value="Chẵn kế giữa">Chẵn kế giữa</option>
-                        <option value="Giữa">Giữa</option>
-                        <option value="Lẻ kế giữa">Lẻ kế giữa</option>
-                        <option value="Lẻ">Lẻ</option>
+                        <option value="Chẵn">Chẵn</option><option value="Lẻ">Lẻ</option>
                     </select>
                 </div>
             </div>
             <div class="form-group"><label>Tên đường / Tên công viên</label><input type="text" id="street_park" placeholder="Ví dụ: Nguyễn Huệ"></div>
 
-            <div class="section-title">Thông tin & Đặc tính cây:</div>
+            <div class="section-title">Thông tin & Đặc tính cây</div>
             <div class="form-row">
                 <div class="form-group"><label>Loài cây</label><input type="text" id="species" placeholder="Sao đen, Dầu rái..."></div>
                 <div class="form-group"><label>Mã số cây</label><input type="text" id="masocay" placeholder="Ví dụ: 39"></div>
@@ -115,7 +112,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Phân loại cây:</label>
+                    <label>Phân loại cây</label>
                     <select id="treeClass">
                         <option value="">-- Chọn --</option>
                         <option value="Mới trồng">Mới trồng</option>
@@ -125,7 +122,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Bồn cỏ:</label>
+                    <label>Bồn cỏ / Ô giữ nước</label>
                     <select id="bon">
                         <option value="">-- Chọn --</option>
                         <option value="Có bồn">Có bồn</option>
@@ -134,42 +131,35 @@
                 </div>
             </div>
 
-            <div class="section-title">Thông số hình thái:</div>
+            <div class="section-title">Thông số Kỹ thuật định lượng</div>
             <div class="grid-technical">
                 <div class="form-group"><label>Hvn (Chiều cao vút ngọn - m)</label><input type="text" id="hvn" placeholder="m"></div>
-                <div class="form-group"><label>C1,3 (Chu vi thân tại 1.3m)</label><input type="text" id="c13" placeholder="cm"></div>
+                <div class="form-group"><label>C1,3 (Chu vi thân tại 1.3m)</label><input type="text" id="c13" placeholder="m"></div>
                 <div class="form-group"><label>Đường kính tán (m)</label><input type="text" id="kt" placeholder="m"></div>
-            </div>
-
-            <input type="hidden" id="mt" value="">
-            <input type="hidden" id="l1" value=""><input type="hidden" id="l2" value=""><input type="hidden" id="l3" value="">
-           
-	    <div class="section-title">Thông tin hiện trường:</div>
-            <div class="grid-technical">
-            <div class="form-group"><label>Mô tả tình trạng:</label><input type="text" id="nho" placeholder="Cành gãy; Cây gãy, ngã ngang thân; Cây nghiêng "></div>
+                <div class="form-group"><label>Mô tả tình trạng nguy hại</label><input type="text" id="nho" placeholder="Sâu bệnh, nghiêng..."></div>
             </div>
 
             <input type="hidden" id="mt" value="">
             <input type="hidden" id="l1" value=""><input type="hidden" id="l2" value=""><input type="hidden" id="l3" value="">
 
-            <div class="section-title">Hình ảnh:</div>
+            <div class="section-title">Hình ảnh hiện trường</div>
             <div class="form-row">
-                <div class="form-group"><label>Ảnh 1 (Cận cảnh)</label><input type="file" id="img1" accept="image/*"><img id="preview1" class="image-preview"></div>
-                <div class="form-group"><label>Ảnh 2 (Tổng quan)</label><input type="file" id="img2" accept="image/*"><img id="preview2" class="image-preview"></div>
+                <div class="form-group"><label>Ảnh 1 (Cận cảnh gốc/thân)</label><input type="file" id="img1" accept="image/*"><img id="preview1" class="image-preview"></div>
+                <div class="form-group"><label>Ảnh 2 (Tổng quan tán)</label><input type="file" id="img2" accept="image/*"><img id="preview2" class="image-preview"></div>
             </div>
         </form>
 
-        <button class="btn-sync" onclick="saveAndSyncToSheets()">GỬI TRỰC TIẾP LÊN CLOUD</button>
-        <button class="btn-success" onclick="saveRecordLocal()">Lưu dự phòng vào bộ nhớ máy (Offline)</button>
+        <button class="btn-sync" onclick="saveAndSyncToSheets()">🚀 GỬI TRỰC TIẾP LÊN ĐÁM MÂY (SHEETS + DRIVE)</button>
+        <button class="btn-success" onclick="saveRecordLocal()">💾 Lưu dự phòng vào bộ nhớ máy (Offline)</button>
         
         <div class="form-row">
-            <button class="btn-backup" onclick="exportCSV()">Xuất file CSV máy</button>
-            <button class="btn-danger" onclick="clearAllData()">Xóa sạch bộ nhớ máy</button>
+            <button class="btn-backup" onclick="exportCSV()">📤 Xuất file CSV máy</button>
+            <button class="btn-danger" onclick="clearAllData()">🗑️ Xóa sạch bộ nhớ máy</button>
         </div>
 
         <div style="margin-top:20px; background:#fff; padding:12px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.05)">
             <h3 style="font-size:14px; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:4px; color:#555;">
-                Danh sách bản ghi đang lưu tạm offline (<span id="recordCount" style="color:var(--accent); font-weight:bold;">0</span>)
+                📋 Danh sách bản ghi đang lưu tạm offline (<span id="recordCount" style="color:var(--accent); font-weight:bold;">0</span>)
             </h3>
             <div id="records" style="max-height:180px; overflow-y:auto; font-size:12px;"></div>
         </div>
@@ -178,142 +168,94 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        let map, marker, geocoder;
+        let map, marker;
         let records = JSON.parse(localStorage.getItem('treeRecords')) || [];
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyIarwHrEIqU0Ih308ZRgkfXJi-LvBUcpqe8Ao33IA7L712tIHyltskoBHgAq_aMlijjQ/exec'; 
-        let existingMarkers = [];
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyEEn_9Sn-B9dWRb2BPKPDaOoMBTULp7e-pd1_HxPY58XYJps82O5-4vm_7WEKeqh8p/exec'; 
+
+        // Lớp Bing Maps Aerial tích hợp cho Leaflet sử dụng cơ chế QuadKey
+        const BingLayer = L.TileLayer.extend({
+            getTileUrl: function (coords) {
+                let x = coords.x;
+                let y = coords.y;
+                let z = coords.z;
+                let quadKey = '';
+                for (let i = z; i > 0; i--) {
+                    let digit = 0;
+                    let mask = 1 << (i - 1);
+                    if ((x & mask) !== 0) digit += 1;
+                    if ((y & mask) !== 0) digit += 2;
+                    quadKey += digit.toString();
+                }
+                return L.Util.template(this._url, {s: this._getSubdomain(coords), quadkey: quadKey});
+            }
+        });
 
         function initMap() {
-            geocoder = new google.maps.Geocoder();
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 10.8231, lng: 106.6297 }, zoom: 16, mapTypeId: 'hybrid', 
-                streetViewControl: false, mapTypeControlOptions: { position: google.maps.ControlPosition.TOP_RIGHT }
+            // Khởi tạo bản đồ Leaflet
+            map = L.map('map').setView([10.8231, 106.6297], 16);
+            
+            // Thêm lớp ảnh vệ tinh Bing Maps Aerial
+            const bingAerial = new BingLayer('https://t{s}.tiles.virtualearth.net/tiles/a{quadkey}.jpeg?g=1', {
+                subdomains: ['0', '1', '2', '3'],
+                maxZoom: 19,
+                attribution: '&copy; Microsoft Corporation'
             });
-            map.addListener('click', e => updateLocationInputs(e.latLng));
+            bingAerial.addTo(map);
+
+            // Sự kiện click trên bản đồ để ghim tọa độ
+            map.on('click', e => updateLocationInputs(e.latlng));
+
             document.getElementById('ward').addEventListener('change', function() {
                 document.getElementById('wardSearch').value = this.value;
                 this.style.display = 'none';
             });
-
-            loadCloudTrees();
-        }
-
-        function parseCloudCoordinate(coordStr) {
-            if (!coordStr) return NaN;
-            let normalized = coordStr.toString().replace(',', '.');
-            return parseFloat(normalized);
-        }
-
-        async function loadCloudTrees() {
-            existingMarkers.forEach(m => m.setMap(null));
-            existingMarkers = [];
-
-            try {
-                const response = await fetch(WEB_APP_URL, { method: 'GET', redirect: 'follow' });
-                if (!response.ok) return;
-                const result = await response.json();
-                
-                if (result.status === "success" && result.data && result.data.length > 0) {
-                    let bounds = new google.maps.LatLngBounds();
-                    let validCount = 0;
-
-                    result.data.forEach(tree => {
-                        // Rà soát và đọc linh hoạt cả Tọa độ X, Y viết hoa hoặc viết thường từ bảng tính
-                        const coordXVal = tree.coordX || tree.CoordX || tree.COORDX || '';
-                        const coordYVal = tree.coordY || tree.CoordY || tree.COORDY || '';
-                        
-                        const lng = parseCloudCoordinate(coordXVal);
-                        const lat = parseCloudCoordinate(coordYVal);
-
-                        if (!isNaN(lat) && !isNaN(lng)) {
-                            const position = { lat: lat, lng: lng };
-                            bounds.extend(position);
-                            validCount++;
-
-                            // RÀ SOÁT LINH HOẠT TÊN CỘT: Tự động bắt dữ liệu bất kể Google Sheet xuất thuộc tính viết Hoa hay viết Thường
-                            const maSoCayHienThi = tree.masocay || tree.MaSoCay || tree.MASOCAY || tree.masốcây || '-';
-                            const loaiCayHienThi = tree.species || tree.Species || tree.SPECIES || tree.loaicay || tree.LoaiCay || 'Chưa rõ';
-                            const tuyenDuongHienThi = tree.street_park || tree.Street_park || tree.STREET_PARK || tree.tenduong || '-';
-                            const tinhTrangHienThi = tree.nho || tree.Nho || tree.NHO || tree.tinhtrang || 'Bình thường';
-
-                            const m = new google.maps.Marker({
-                                position: position,
-                                map: map,
-                                icon: {
-                                    path: google.maps.SymbolPath.CIRCLE,
-                                    fillColor: '#43a047',
-                                    fillOpacity: 0.9,
-                                    scale: 6,
-                                    strokeColor: 'white',
-                                    strokeWeight: 1.5
-                                },
-                                title: `[MS: ${maSoCayHienThi}] ${loaiCayHienThi}`
-                            });
-
-                            // Kết nối và kết xuất thông tin trực quan lên cửa sổ bản đồ khi click chuột
-                            const infoWindow = new google.maps.InfoWindow({
-                                content: `<div style="font-size:13px; color:#333; line-height:1.4; padding:3px; font-family: sans-serif;">
-                                            <b style="color:var(--primary); display:block; margin-bottom:4px;">🌳 CÂY XANH</b>
-                                            <b>Mã số cây:</b> ${maSoCayHienThi}<br>
-                                            <b>Loài cây:</b> ${loaiCayHienThi}<br>
-                                            <b>Tuyến đường:</b> ${tuyenDuongHienThi}<br>
-                                            <b>Tình trạng:</b> ${tinhTrangHienThi}
-                                          </div>`
-                            });
-
-                            m.addListener('click', () => infoWindow.open(map, m));
-                            existingMarkers.push(m);
-                        }
-                    });
-
-                    if (validCount > 0) {
-                        map.fitBounds(bounds);
-                    }
-                    showToast(`Đã hiển thị nền ${validCount} cây từ Cloud lên bản đồ.`, "success");
-                }
-            } catch (err) {
-                console.error("Lỗi đồng bộ cây nền: ", err);
-                showToast("Không thể kết nối dữ liệu nền cây xanh.", "error");
-            }
         }
 
         function getCurrentLocation() {
             if (!navigator.geolocation) return showToast("Thiết bị không hỗ trợ định vị GPS", "error");
             navigator.geolocation.getCurrentPosition(pos => {
-                const latLng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-                map.setCenter(latLng); map.setZoom(19);
-                updateLocationInputs(latLng);
+                const latlng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                map.setView([latlng.lat, latlng.lng], 19);
+                updateLocationInputs(latlng);
                 showToast("Đã định vị thành công vị trí hiện tại!", "success");
             }, () => showToast("Sự cố định vị. Hãy chắc chắn đã bật vị trí cấp cao (GPS)!", "error"), { enableHighAccuracy: true, timeout: 7000 });
         }
 
-        function updateLocationInputs(latLng) {
-            document.getElementById('coordY').value = latLng.lat().toFixed(6).replace('.', ',');
-            document.getElementById('coordX').value = latLng.lng().toFixed(6).replace('.', ',');
-            if (marker) marker.setMap(null);
-            marker = new google.maps.Marker({ position: latLng, map: map, animation: google.maps.Animation.DROP });
-            map.panTo(latLng);
+        function updateLocationInputs(latlng) {
+            const lat = typeof latlng.lat === 'function' ? latlng.lat() : latlng.lat;
+            const lng = typeof latlng.lng === 'function' ? latlng.lng() : latlng.lng;
 
-            geocoder.geocode({ location: latLng }, (results, status) => {
-                if (status === "OK" && results[0]) {
-                    const fullAddress = results[0].formatted_address;
+            document.getElementById('coordY').value = lat.toFixed(6);
+            document.getElementById('coordX').value = lng.toFixed(6);
+            
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([lat, lng]).addTo(map);
+            map.panTo([lat, lng]);
+
+            // Sử dụng Nominatim (OpenStreetMap) Reverse Geocoding để tra cứu địa chỉ thay thế Google Geocoder
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+                headers: { 'Accept-Language': 'vi' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.display_name) {
+                    const fullAddress = data.display_name;
                     document.getElementById('address').value = fullAddress;
 
-                    let route = "", streetNumber = "";
-                    for (let c of results[0].address_components) {
-                        if (c.types.includes("route")) route = c.long_name;
-                        if (c.types.includes("street_number")) streetNumber = c.long_name;
-                    }
-                    document.getElementById('street_park').value = route || fullAddress.split(',')[0].replace(/[0-9]/g, '').trim();
+                    const address = data.address || {};
+                    const road = address.road || '';
+                    const houseNumber = address.house_number || '';
 
-                    if (streetNumber) {
-                        let numMatch = streetNumber.match(/\d+/);
+                    document.getElementById('street_park').value = road || fullAddress.split(',')[0].replace(/[0-9]/g, '').trim();
+
+                    if (houseNumber) {
+                        let numMatch = houseNumber.match(/\d+/);
                         if (numMatch) {
                             document.getElementById('side').value = (parseInt(numMatch[0]) % 2 === 0) ? "Chẵn" : "Lẻ";
                         }
                     }
                 }
-            });
+            }).catch(err => console.log('Geocoding error:', err));
         }
 
         function filterWards() {
@@ -370,8 +312,8 @@
 
         async function getFormData() {
             const data = {
-                coordX: document.getElementById('coordX').value, 
-                coordY: document.getElementById('coordY').value, 
+                coordX: document.getElementById('coordX').value,
+                coordY: document.getElementById('coordY').value,
                 company: document.getElementById('company').value,
                 area: document.getElementById('area').value,
                 address: document.getElementById('address').value.trim(),
@@ -418,9 +360,8 @@
                 const resData = await response.json();
                 
                 if(resData.status === "success") {
-                    showToast("Đồng bộ thành công! Đã cập nhật Cloud.", "success");
+                    showToast("🚀 Đồng bộ thành công! Đã cập nhật Sheets và Drive.", "success");
                     resetForm();
-                    setTimeout(loadCloudTrees, 1200);
                 } else {
                     showToast("Hệ thống Cloud bận, đã chuyển dữ liệu lưu tạm máy (Offline)", "error");
                     saveRecordLocal(data);
@@ -435,12 +376,12 @@
 
         function saveRecordLocal(directData = null) {
             async function proceedSave(data) {
-                if (!data.coordX || !data.coordY) return showToast("Không tìm thấy tọa độ dữ liệu!", "error");
+                if (!data.coordX || !data.coordY) return showToast("⚠️ Không tìm thấy tọa độ dữ liệu!", "error");
                 data.timestamp = new Date().toISOString();
                 records.push(data);
                 localStorage.setItem('treeRecords', JSON.stringify(records));
                 updateRecordList();
-                showToast("Đã lưu dữ liệu dự phòng vào bộ nhớ máy cục bộ!", "success");
+                showToast("💾 Đã lưu dữ liệu dự phòng vào bộ nhớ máy cục bộ!", "success");
                 resetForm();
             }
             if(directData) { proceedSave(directData); } else { getFormData().then(data => proceedSave(data)); }
@@ -466,7 +407,7 @@
         }
 
         function exportCSV() {
-            if (records.length === 0) return showToast("Bộ nhớ tạm không có dữ liệu nào!", "error");
+            if (records.length === 0) return showToast("⚠️ Bộ nhớ tạm không có dữ liệu nào!", "error");
             let headers = ["coordX","coordY","company","area","address","ward","street_park","side","species","masocay","treeCount","plantYear","treeClass","bon","hvn","c13","kt","nho","timestamp"];
             let csv = '\uFEFF' + headers.join(',') + '\n';
             records.forEach(r => { csv += headers.map(h => `"${(r[h]||'').toString().replace(/"/g, '""')}"`).join(',') + '\n'; });
@@ -474,13 +415,13 @@
             link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
             link.download = `Backup_CayXanh_${new Date().toISOString().slice(0,10)}.csv`; 
             link.click();
-            showToast("Đã xuất file CSV dự phòng thành công!", "success");
+            showToast("📤 Đã xuất file CSV dự phòng thành công!", "success");
         }
 
         function clearAllData() { 
             if (confirm("Bạn chắc chắn muốn xóa toàn bộ bản ghi đang lưu tạm trên máy này?")) { 
                 records = []; localStorage.removeItem('treeRecords'); updateRecordList(); 
-                showToast("Đã xóa sạch bộ nhớ tạm của thiết bị.", "success");
+                showToast("🗑️ Đã xóa sạch bộ nhớ tạm của thiết bị.", "success");
             } 
         }
         
